@@ -5,6 +5,9 @@
 # Core ML & Inference
 ultralytics>=8.3.0
 onnxruntime-gpu>=1.19.0
+onnx>=1.12.0,<2.0.0
+onnxslim>=0.1.82
+ml_dtypes>=0.5.4
 
 # Computer Vision
 opencv-python>=4.10.0
