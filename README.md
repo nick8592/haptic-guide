@@ -115,17 +115,19 @@ Press **q** or **ESC** in the window to quit.
 ./scripts/haptic-guide.sh devices     # List cameras & audio devices
 ```
 
-## Benchmarks (RTX 4060 Laptop 8GB)
+## Benchmarks (RTX 4060 Laptop 8GB, YOLO26n e2e)
 
-| Backend | Inference | End-to-End FPS |
-|---------|-----------|-----------------|
-| ONNX FP32 CUDA e2e | 6.2ms | **55–60 FPS** |
-| PyTorch FP16 e2e | 14.0ms | ~19 FPS (with display) |
-| ONNX FP32 CPU e2e | 43.0ms | ~15 FPS |
+Measured with 100 iterations of real camera frames through the full pipeline (camera → inference → feedback). 100 iterations for backend-only, 200 frames for e2e.
 
-**Pipeline budget**: Camera ~5ms + ONNX GPU 6.2ms + Feedback ~1ms + Audio ~3ms = **15.2ms**
+| Backend | Inference Only | E2E (camera+infer+feedback) | E2E FPS |
+|---------|---------------|------------------------------|---------|
+| **ONNX FP32 CUDA** | 8.47ms (p95: 9.34ms) | 9.99ms (p95: 10.82ms) | **100 FPS** |
+| PyTorch FP16 | 11.65ms (p95: 13.71ms) | ~14ms | ~71 FPS |
+| ONNX FP32 CPU | ~43ms | ~48ms | ~21 FPS |
 
-ONNX GPU with `--display` window: **55–60 FPS, 10–13ms inference** (verified via docker-compose).
+ONNX GPU is **27% faster** than PyTorch FP16 for inference-only, and delivers consistent 100 FPS end-to-end.
+
+With `--display` window active: **55–60 FPS** (display rendering adds ~5ms overhead).
 
 ## Architecture
 
