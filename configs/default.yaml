@@ -1,0 +1,123 @@
+# HapticGuide — Project Configuration
+# =============================================================================
+# Default runtime configuration. Override via:
+#   1. CLI flags: python -m src.main --model-variant yolo26s
+#   2. Custom config: python -m src.main --config configs/custom.yaml
+#   3. Environment variables: MODEL_VARIANT=yolo26s
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+# Camera
+# ---------------------------------------------------------------------------
+camera:
+  device_index: 0            # /dev/video0
+  resolution: [640, 480]      # Width, Height — lower = faster inference
+  fps: 30                     # Target capture rate
+  fourcc: "MJPG"             # MJPG for USB cams, YUYV for built-in
+  buffer_size: 1              # Minimize latency (1 = no buffer queue)
+
+# ---------------------------------------------------------------------------
+# YOLO26 Detection Model
+# ---------------------------------------------------------------------------
+model:
+  variant: "yolo26n"         # yolo26n | yolo26s | yolo26m | yolo26l | yolo26x
+  backend: "onnx"            # pytorch | onnx | tensorrt
+  confidence_threshold: 0.5  # Min confidence to report detection
+  iou_threshold: 0.45        # NMS IoU threshold
+  max_detections: 10         # Max objects per frame
+  input_size: 640            # Model input resolution (640 or 1280)
+  half_precision: false      # ONNX: FP32 (faster on GPU). PyTorch: set true for FP16
+
+# ---------------------------------------------------------------------------
+# Target Object Selection
+# ---------------------------------------------------------------------------
+target:
+  # COCO class names for common personal items
+  # Full list: https://docs.ultralytics.com/datasets/detect/coco/#class-names
+  default: "cell phone"      # Default object to search for
+  # Pre-defined search profiles
+  profiles:
+    keys: "keys"             # Fine-tune needed — COCO has no "keys" class
+    wallet: "wallet"          # Fine-tune needed
+    phone: "cell phone"      # Works out of box with COCO
+    chair: "chair"            # Empty seat detection
+    person: "person"          # Person tracking
+    bottle: "bottle"          # Common object
+
+# ---------------------------------------------------------------------------
+# Spatial Feedback Engine
+# ---------------------------------------------------------------------------
+feedback:
+  # Proximity → signal mapping
+  proximity:
+    # Distance from frame center (0.0 = centered, 1.0 = edge)
+    far_threshold: 0.7
+    near_threshold: 0.3
+    locked_threshold: 0.1
+
+  # "Metal detector" vibration mapping
+  vibration:
+    enabled: true
+    far_hz: 10               # Slow pulse when target is far
+    near_hz: 40              # Medium pulse approaching
+    locked_hz: 80            # Continuous buzz when locked on
+    far_intensity: 0.2       # 0.0–1.0
+    near_intensity: 0.6
+    locked_intensity: 1.0
+
+  # Audio mapping
+  audio:
+    enabled: true
+    sample_rate: 44100
+    buffer_size: 512          # ~11ms at 44100Hz — low latency
+    far_pitch_hz: 200
+    near_pitch_hz: 500
+    locked_pitch_hz: 800
+    far_bpm: 60               # Beats per minute — slow pulse
+    near_bpm: 180
+    locked_bpm: 360
+    locked_earcon: "ascending_triad"  # Distinctive "found it" sound
+
+# ---------------------------------------------------------------------------
+# Tracking
+# ---------------------------------------------------------------------------
+tracking:
+  enabled: true
+  method: "iou_centroid"      # iou_centroid | byte_track
+  max_lost_frames: 15         # Frames before declaring target lost
+  min_iou_match: 0.3          # IoU threshold for matching
+
+# ---------------------------------------------------------------------------
+# Voice Interface (Accessibility)
+# ---------------------------------------------------------------------------
+voice:
+  stt_enabled: false          # Vosk offline STT
+  stt_model: "vosk-model-small-en-us-0.15"
+  tts_enabled: true           # espeak-ng TTS
+  tts_voice: "en-us"
+  announcements:
+    scanning: "Scanning for {target}"
+    found: "{target} found, {direction}"
+    lost: "Lost {target}, continue scanning"
+    locked: "Locked on {target}"
+
+# ---------------------------------------------------------------------------
+# Performance
+# ---------------------------------------------------------------------------
+performance:
+  # Frame skip: if inference is slower than capture, skip frames
+  frame_skip: true
+  # Threading: separate threads for capture / inference / feedback
+  threaded: true
+  capture_thread_priority: "high"
+  inference_thread_priority: "high"
+  feedback_thread_priority: "realtime"
+
+# ---------------------------------------------------------------------------
+# Logging
+# ---------------------------------------------------------------------------
+logging:
+  level: "INFO"              # DEBUG | INFO | WARNING | ERROR
+  file: "/app/logs/haptic-guide.log"
+  rotation: "10 MB"
+  retention: "7 days"

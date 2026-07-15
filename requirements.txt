@@ -1,0 +1,32 @@
+# =============================================================================
+# HapticGuide — Python Dependencies
+# =============================================================================
+
+# Core ML & Inference
+ultralytics>=8.3.0
+onnxruntime-gpu>=1.19.0
+
+# Computer Vision
+opencv-python>=4.10.0
+
+# Audio
+sounddevice>=0.5.1
+numpy>=1.26.0
+scipy>=1.14.0
+
+# Configuration
+pyyaml>=6.0.2
+pydantic>=2.9.0
+
+# Voice I/O (offline — install on demand to keep image small)
+# vosk>=0.3.45  # Heavy (~50MB model) — pip install vosk when needed
+
+# Utilities
+loguru>=0.7.2
+rich>=13.9.0
+click>=8.1.7
+
+# Testing
+pytest>=8.3.0
+pytest-asyncio>=0.24.0
+pytest-benchmark>=4.0.0

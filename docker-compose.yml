@@ -1,0 +1,61 @@
+# HapticGuide — Docker Compose
+# Ubuntu 24.04 + NVIDIA GPU + Camera + Audio + X11 Display
+
+services:
+  haptic-guide:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: haptic-guide:latest
+    container_name: haptic-guide
+    entrypoint: ["/app/scripts/entrypoint.sh"]
+
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+    devices:
+      - /dev/video0:/dev/video0
+      - /dev/snd:/dev/snd
+      - /dev/gpiochip0:/dev/gpiochip0
+
+    volumes:
+      - ./models:/app/models
+      - ./configs:/app/configs
+      - ./src:/app/src
+      - ./tests:/app/tests
+      - ./scripts:/app/scripts
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ${XAUTHORITY:-/dev/null}:/root/.Xauthority
+      - /run/user/1000/pulse:/run/user/1000/pulse
+
+    environment:
+      - CAMERA_DEVICE=0
+      - MODEL_VARIANT=yolo26n
+      - INFERENCE_BACKEND=onnx
+      - LOG_LEVEL=INFO
+      - DISPLAY=${DISPLAY:-:0}
+      - XAUTHORITY=/root/.Xauthority
+      - PULSE_SERVER=unix:/run/user/1000/pulse/native
+      - NVIDIA_VISIBLE_DEVICES=0
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility,video
+      - LD_LIBRARY_PATH=/opt/venv/lib/python3.12/site-packages/nvidia/cudnn/lib:/opt/venv/lib/python3.12/site-packages/nvidia/cu13/lib:/usr/local/cuda/lib64
+      - QT_X11_NO_MITSHM=1
+
+    network_mode: host
+
+    privileged: false
+    security_opt:
+      - seccomp=unconfined
+
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import ultralytics; print('OK')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+    restart: "no"
