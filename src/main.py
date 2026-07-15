@@ -175,7 +175,8 @@ class HapticGuideApp:
 
                 result = self.detector.detect(frame)
                 signal = self.feedback_engine.compute(result, self._target_class)
-                self.audio_engine.update_signal(signal)
+                if self.audio_engine:
+                    self.audio_engine.update_signal(signal)
 
                 fps_count += 1
                 elapsed = time.perf_counter() - fps_timer
