@@ -38,3 +38,7 @@ venv/
 .pytest_cache/
 .coverage
 htmlcov/
+
+# Agent / OpenCode state
+.omo/
+.opencode/
