@@ -3,13 +3,7 @@ name: Build & Push Docker Image
 on:
   push:
     branches: [main]
-    paths:
-      - Dockerfile
-      - requirements.txt
-      - src/**
-      - scripts/**
-      - configs/**
-      - .github/workflows/docker-publish.yml
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
