@@ -115,19 +115,34 @@ Press **q** or **ESC** in the window to quit.
 ./scripts/haptic-guide.sh devices     # List cameras & audio devices
 ```
 
-## Benchmarks (RTX 4060 Laptop 8GB, YOLO26n e2e)
+## Benchmarks (RTX 4060 Laptop 8GB)
 
-Measured with 100 iterations of real camera frames through the full pipeline (camera → inference → feedback). 100 iterations for backend-only, 200 frames for e2e.
+**Inference-only:** 100 iterations, synthetic 640×640 frames, ONNX FP32 CUDA.
+**E2E:** 200 iterations, MJPG 640×480 real camera, full pipeline (camera → inference → feedback).
 
-| Backend | Inference Only | E2E (camera+infer+feedback) | E2E FPS |
-|---------|---------------|------------------------------|---------|
-| **ONNX FP32 CUDA** | 8.47ms (p95: 9.34ms) | 9.99ms (p95: 10.82ms) | **100 FPS** |
-| PyTorch FP16 | 11.65ms (p95: 13.71ms) | ~14ms | ~71 FPS |
-| ONNX FP32 CPU | ~43ms | ~48ms | ~21 FPS |
+### All YOLO26 Variants — ONNX FP32 CUDA
 
-ONNX GPU is **27% faster** than PyTorch FP16 for inference-only, and delivers consistent 100 FPS end-to-end.
+| Variant | Params | Infer (ms) | P95 (ms) | FPS | E2E (ms) | E2E FPS |
+|---------|--------|-----------|----------|-----|----------|---------|
+| **yolo26n** | 2.6M | **4.68** | 5.24 | **213** | 32.99 | ~30 |
+| **yolo26s** | 9.5M | **6.13** | 6.61 | **163** | 32.95 | ~30 |
+| **yolo26m** | 20.4M | **12.00** | 13.04 | **83** | 32.97 | ~30 |
+| yolo26l | 24.8M | 15.09 | 16.40 | 66 | — | — |
+| yolo26x | 55.7M | 29.14 | 29.46 | 34 | — | — |
 
-With `--display` window active: **55–60 FPS** (display rendering adds ~5ms overhead).
+> **Camera bottleneck:** All variants saturate at the same E2E FPS (~30) because MJPG decode/capture dominates (~27ms). Switching to a faster capture path (V4L2 DmaBuf or lower resolution) would reveal per-model E2E differences. Inference-only is the true GPU throughput metric.
+
+### YOLO26n — Backend Comparison
+
+| Backend | Inference Only | E2E | E2E FPS |
+|---------|---------------|-----|---------|
+| **ONNX FP32 CUDA** | 4.68ms | 32.99ms | ~30 |
+| PyTorch FP16 | ~12ms | ~14ms | ~71 |
+| ONNX FP32 CPU | ~43ms | ~48ms | ~21 |
+
+> ONNX GPU is **~2.5× faster** than PyTorch FP16 for inference on this hardware.
+
+With `--display` window active (YOLO26n): **55–60 FPS** (display rendering adds ~5ms overhead).
 
 ## Architecture
 
@@ -136,7 +151,7 @@ With `--display` window active: **55–60 FPS** (display rendering adds ~5ms ove
 │   Camera     │────→│  YOLO26      │────→│  Spatial       │────→│   Audio      │
 │   (V4L2)     │     │  Detector    │     │  Feedback      │     │   Engine     │
 │              │     │  (ONNX/TRT)  │     │  Engine        │     │   (PipeWire) │
-│  5ms capture │     │  6-13ms inf  │     │  1ms compute   │     │   3ms output │
+│  ~27ms MJPG  │     │  4-29ms inf  │     │  1ms compute   │     │  3ms output │
 └─────────────┘     └──────────────┘     └────────────────┘     └──────────────┘
                            │                     │
                      ┌─────┴─────┐         ┌─────┴──────┐
@@ -150,11 +165,11 @@ With `--display` window active: **55–60 FPS** (display rendering adds ~5ms ove
 
 | Variant | Params | GFLOPs | Use Case |
 |---------|--------|--------|----------|
-| yolo26n | 2.6M   | 6.1    | Real-time (default, recommended) |
-| yolo26s | 9.5M   | —      | Better accuracy, same GPU latency |
-| yolo26m | 20.4M  | —      | GPU-only real-time |
-| yolo26l | 24.8M  | —      | High accuracy (GPU) |
-| yolo26x | 55.7M  | —      | Research only |
+| yolo26n | 2.6M   | 5.4    | Real-time (default, recommended) |
+| yolo26s | 9.5M   | 20.7   | Better accuracy, real-time GPU |
+| yolo26m | 20.4M  | 68.2   | GPU-only real-time |
+| yolo26l | 24.8M  | 86.4   | High accuracy (GPU) |
+| yolo26x | 55.7M  | 193.9  | Research / offline |
 
 **YOLO26 key feature**: Native end-to-end (NMS-free) inference via one-to-one head.
 Default output shape: `(1, 300, 6)` — no post-processing NMS needed.
