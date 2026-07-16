@@ -98,10 +98,15 @@ ENV CAMERA_DEVICE=0
 ENV MODEL_VARIANT=yolo26n
 ENV INFERENCE_BACKEND=onnx
 ENV LOG_LEVEL=INFO
+ENV GRADIO_MODE=off
+ENV GRADIO_PORT=7860
 ENV LD_LIBRARY_PATH=/opt/venv/lib/python3.12/site-packages/nvidia/cudnn/lib:/opt/venv/lib/python3.12/site-packages/nvidia/cu13/lib:/usr/local/cuda/lib64:${LD_LIBRARY_PATH}
+
+# Expose Gradio web UI port (used when GRADIO_MODE=on)
+EXPOSE 7860
 
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
     CMD python3 -c "import ultralytics; print('OK')" || exit 1
 
-ENTRYPOINT ["python3", "-m", "src.main"]
+ENTRYPOINT ["/app/scripts/entrypoint.sh"]
 CMD ["--config", "/app/configs/default.yaml"]

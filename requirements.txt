@@ -24,6 +24,9 @@ pydantic>=2.9.0
 # Voice I/O (offline — install on demand to keep image small)
 # vosk>=0.3.45  # Heavy (~50MB model) — pip install vosk when needed
 
+# Web UI
+gradio>=5.0.0
+
 # Utilities
 loguru>=0.7.2
 rich>=13.9.0

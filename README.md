@@ -50,7 +50,35 @@ MODEL_VARIANT=yolo26s ./scripts/haptic-guide.sh run
 MODEL_VARIANT=yolo26s TARGET="person" DISPLAY_MODE=on ./scripts/haptic-guide.sh run
 ```
 
-### 3. Docker Compose
+### 3. Gradio Web UI
+
+Browser-based interactive interface for detection, webcam streaming, benchmarking, and device listing.
+
+```bash
+# Launch Gradio web UI
+./scripts/haptic-guide.sh gradio
+
+# With specific model variant
+MODEL_VARIANT=yolo26s ./scripts/haptic-guide.sh gradio
+
+# Via Docker Compose
+docker compose run --rm gradio
+
+# Custom port
+docker compose run --rm -e GRADIO_PORT=8080 -p 8080:8080 gradio
+```
+
+Open **http://localhost:7860** in your browser.
+
+| Tab | Description |
+|-----|-------------|
+| **Image Detection** | Upload an image, select target & model, run detection with overlay |
+| **Live Webcam** | Stream webcam frames through YOLO26 with real-time overlay |
+| **Devices** | List available cameras and audio devices |
+| **Benchmark** | Run inference benchmarks (variant, backend, iterations) |
+| **Configuration** | View current `default.yaml` settings |
+
+### 4. Docker Compose
 
 ```bash
 # Headless (audio-only)
@@ -94,6 +122,17 @@ Press **q** or **ESC** in the window to quit.
 | `--list-cameras` | List available cameras and exit |
 | `--list-audio` | List audio devices and exit |
 
+**Gradio Web UI** (no CLI flags — configured via browser):
+
+| Setting | Description |
+|---------|-------------|
+| Target Object | Dropdown + custom input for object class |
+| Model Variant | yolo26n / s / m / l / x |
+| Inference Backend | onnx / pytorch / tensorrt |
+| Confidence Threshold | Slider (0.1–0.99) |
+| IoU Threshold | Slider (0.1–0.9) |
+| Max Detections | Slider (1–50) |
+
 ## Environment Variables
 
 | Variable | Default | Description |
@@ -103,12 +142,15 @@ Press **q** or **ESC** in the window to quit.
 | `CAMERA_DEVICE` | `0` | Camera index |
 | `TARGET` | `cell phone` | Object class to find |
 | `DISPLAY_MODE` | `off` | `on` = enable X11 overlay window |
+| `GRADIO_MODE` | `off` | `on` = launch Gradio web UI instead of CLI |
+| `GRADIO_PORT` | `7860` | Gradio web UI port |
 
 ## Dev Tools
 
 ```bash
 ./scripts/haptic-guide.sh build       # Build Docker image
-./scripts/haptic-guide.sh run         # Run app
+./scripts/haptic-guide.sh run         # Run app (CLI)
+./scripts/haptic-guide.sh gradio      # Launch Gradio web UI
 ./scripts/haptic-guide.sh shell       # Shell into container
 ./scripts/haptic-guide.sh benchmark   # Benchmark inference latency
 ./scripts/haptic-guide.sh download    # Download model variant
@@ -237,6 +279,15 @@ docker run --rm --gpus all \
   -e LD_LIBRARY_PATH=/opt/venv/lib/python3.12/site-packages/nvidia/cudnn/lib:/opt/venv/lib/python3.12/site-packages/nvidia/cu13/lib:/usr/local/cuda/lib64 \
   -v $(pwd)/models:/app/models \
   haptic-guide:latest --display --no-audio --target "person"
+
+# Gradio web UI
+docker run --rm --gpus all \
+  --device /dev/video0 \
+  --network host \
+  -e GRADIO_MODE=on \
+  -e LD_LIBRARY_PATH=/opt/venv/lib/python3.12/site-packages/nvidia/cudnn/lib:/opt/venv/lib/python3.12/site-packages/nvidia/cu13/lib:/usr/local/cuda/lib64 \
+  -v $(pwd)/models:/app/models \
+  haptic-guide:latest
 ```
 
 ## Project Structure
@@ -244,18 +295,19 @@ docker run --rm --gpus all \
 ```
 haptic-guide/
 ├── Dockerfile              # Ubuntu 24.04 + CUDA 12.8 + Qt5 XCB
-├── docker-compose.yml      # GPU + camera + audio + X11 passthrough
+├── docker-compose.yml      # GPU + camera + audio + X11 passthrough (CLI + Gradio services)
 ├── requirements.txt        # Python dependencies
 ├── configs/
 │   └── default.yaml        # Runtime configuration
 ├── models/                 # Downloaded/exported models (persisted via volume)
 ├── scripts/
-│   ├── entrypoint.sh       # Container entrypoint (auto-installs X11 deps)
-│   ├── haptic-guide.sh     # Build, run, shell, benchmark CLI
+│   ├── entrypoint.sh       # Container entrypoint (auto-installs X11 deps, routes CLI/Gradio)
+│   ├── haptic-guide.sh     # Build, run, gradio, shell, benchmark CLI
 │   └── dev_tools.py        # Download, export, benchmark tools
 ├── src/
 │   ├── __init__.py
 │   ├── main.py             # App entry point + CLI (--display, --no-audio)
+│   ├── gradio_app.py       # Gradio web UI (image detection, webcam, benchmark, devices)
 │   ├── detector.py         # YOLO26 inference (PyTorch/ONNX/TRT)
 │   ├── feedback_engine.py  # Spatial → haptic/audio mapping
 │   ├── audio_engine.py     # Real-time spatial audio output

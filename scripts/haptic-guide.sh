@@ -102,6 +102,21 @@ download_model() {
         /app/scripts/dev_tools.py download-model "$variant"
 }
 
+gradio() {
+    info "Starting HapticGuide Gradio web UI..."
+    info "  Model:    ${VARIANT}"
+    info "  Backend:  ${BACKEND}"
+    info "  Camera:   /dev/video${CAMERA}"
+    info "  Port:     7860"
+    info "  Open:     http://localhost:7860"
+
+    docker compose -f "$PROJECT_DIR/docker-compose.yml" run --rm \
+        -e MODEL_VARIANT="$VARIANT" \
+        -e INFERENCE_BACKEND="$BACKEND" \
+        -e CAMERA_DEVICE="$CAMERA" \
+        gradio
+}
+
 list_devices() {
     info "Listing available devices..."
     docker compose -f "$PROJECT_DIR/docker-compose.yml" run --rm \
@@ -123,6 +138,7 @@ Usage: $(basename "$0") <command> [options]
 Commands:
   build             Build Docker image
   run               Run HapticGuide (default: yolo26n, camera 0)
+  gradio            Launch Gradio web UI on http://localhost:7860
   shell             Open shell in container
   benchmark [VAR]   Benchmark model variant (default: yolo26n)
   download [VAR]    Download model variant (default: yolo26n)
@@ -138,6 +154,7 @@ Environment:
 Examples:
   $(basename "$0") build
   $(basename "$0") run
+  $(basename "$0") gradio
   MODEL_VARIANT=yolo26s $(basename "$0") run
   DISPLAY_MODE=on $(basename "$0") run
   $(basename "$0") benchmark yolo26n 200
@@ -148,6 +165,7 @@ EOF
 case "${1:-}" in
     build)    build ;;
     run)      run ;;
+    gradio)   gradio ;;
     shell)    shell ;;
     benchmark) benchmark "${2:-yolo26n}" "${3:-100}" ;;
     download) download_model "${2:-yolo26n}" ;;

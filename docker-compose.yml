@@ -59,3 +59,52 @@ services:
       retries: 3
 
     restart: "no"
+
+  # Gradio web UI — browser-based interactive interface
+  gradio:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: haptic-guide:latest
+    container_name: haptic-guide-gradio
+    entrypoint: ["python3", "-m", "src.gradio_app"]
+
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+    devices:
+      - /dev/video0:/dev/video0
+      - /dev/snd:/dev/snd
+
+    volumes:
+      - ./models:/app/models
+      - ./configs:/app/configs
+      - ./src:/app/src
+
+    network_mode: host
+
+    environment:
+      - CAMERA_DEVICE=0
+      - MODEL_VARIANT=yolo26n
+      - INFERENCE_BACKEND=onnx
+      - LOG_LEVEL=INFO
+      - NVIDIA_VISIBLE_DEVICES=0
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility,video
+      - LD_LIBRARY_PATH=/opt/venv/lib/python3.12/site-packages/nvidia/cudnn/lib:/opt/venv/lib/python3.12/site-packages/nvidia/cu13/lib:/usr/local/cuda/lib64
+
+    privileged: false
+    security_opt:
+      - seccomp=unconfined
+
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import gradio; print('OK')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+    restart: "no"

@@ -1,6 +1,7 @@
 #!/bin/bash
 # HapticGuide — Container entrypoint wrapper
-# Installs X11 display dependencies when DISPLAY_MODE is set, then runs the app.
+# Installs X11 display dependencies when DISPLAY is set, then runs the app.
+# If GRADIO_MODE=on, launches the Gradio web UI instead of the CLI app.
 
 set -e
 
@@ -17,4 +18,9 @@ if [ -n "${DISPLAY:-}" ]; then
     fi
 fi
 
-exec python3 -m src.main "$@"
+if [ "${GRADIO_MODE:-off}" = "on" ]; then
+    echo "[entrypoint] Starting Gradio web UI on port ${GRADIO_PORT:-7860}..."
+    exec python3 -m src.gradio_app "$@"
+else
+    exec python3 -m src.main "$@"
+fi
