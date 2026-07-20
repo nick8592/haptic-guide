@@ -5,6 +5,8 @@
 
 FROM nvidia/cuda:12.8.2-runtime-ubuntu24.04 AS base
 
+LABEL org.opencontainers.image.source=https://github.com/nick8592/haptic-guide
+
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
