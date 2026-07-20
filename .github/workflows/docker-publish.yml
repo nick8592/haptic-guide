@@ -48,4 +48,6 @@ jobs:
           cache-to: type=gha,mode=max
           build-args: |
             BUILDKIT_SANDBOX_HOSTNAME=buildkit
+          # Allow longer build time for CUDA image
+          timeout-minutes: 60
 # build
