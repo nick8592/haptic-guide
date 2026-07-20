@@ -345,4 +345,4 @@ haptic-guide/
 
 ## License
 
-Proprietary — Pegatron Internal Use
+MIT — see [LICENSE](LICENSE)
