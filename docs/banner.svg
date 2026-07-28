@@ -1,0 +1,172 @@
+<svg viewBox="0 0 1280 320" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="arrowGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#58a6ff;stop-opacity:0.3"/>
+      <stop offset="100%" style="stop-color:#58a6ff;stop-opacity:1"/>
+    </linearGradient>
+    
+    <linearGradient id="proximityGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1a1f26"/>
+      <stop offset="25%" style="stop-color:#2d333b"/>
+      <stop offset="50%" style="stop-color:#3fb950;stop-opacity:0.5"/>
+      <stop offset="75%" style="stop-color:#3fb950;stop-opacity:0.8"/>
+      <stop offset="100%" style="stop-color:#3fb950"/>
+    </linearGradient>
+    
+    <linearGradient id="cameraGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#58a6ff"/>
+      <stop offset="100%" style="stop-color:#1f6feb"/>
+    </linearGradient>
+    
+    <linearGradient id="yoloGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f78166"/>
+      <stop offset="100%" style="stop-color:#d05835"/>
+    </linearGradient>
+    
+    <linearGradient id="feedbackGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#d2a8ff"/>
+      <stop offset="100%" style="stop-color:#9361d9"/>
+    </linearGradient>
+    
+    <linearGradient id="audioGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3fb950"/>
+      <stop offset="100%" style="stop-color:#2a8a3a"/>
+    </linearGradient>
+  </defs>
+  
+  <!--
+    Layout math (all in absolute coordinates):
+      Margin:        90px each side
+      Usable width:  1280 - 180 = 1100px
+      Card width:    240px
+      Arrow width:   (1100 - 960) / 3 ≈ 47px
+      Card lefts:    90, 377, 663, 950
+      Card centers:  210, 497, 783, 1070
+      Card rights:   330, 617, 903, 1190
+      Bar:           x=90, width=1100, right=1190 (matches pipeline span)
+      Bar markers:   At card centers (210, 497, 783, 1070)
+  -->
+  
+  <!-- Background -->
+  <rect width="1280" height="320" fill="#0d1117"/>
+  
+  <!-- Title Section -->
+  <text x="640" y="50" text-anchor="middle" fill="#f0f6fc" font-family="system-ui, -apple-system, sans-serif" font-size="36" font-weight="700" letter-spacing="1">HapticGuide</text>
+  <text x="640" y="75" text-anchor="middle" fill="#8b949e" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="400" letter-spacing="0.5">Real-Time Spatial Finder for the Visually Impaired</text>
+  
+  <!-- ============ PIPELINE (absolute coords) ============ -->
+  
+  <!-- Stage 1: Camera — left=90, center=210 -->
+  <g>
+    <rect x="90" y="100" width="240" height="100" rx="12" fill="#161b22" stroke="#58a6ff" stroke-width="2"/>
+    <!-- Camera Icon -->
+    <g transform="translate(210, 138)">
+      <rect x="-20" y="-15" width="40" height="26" rx="4" fill="url(#cameraGradient)"/>
+      <circle cx="0" cy="0" r="12" fill="#0d1117"/>
+      <circle cx="0" cy="0" r="8" fill="#1f6feb"/>
+      <circle cx="0" cy="0" r="4" fill="#58a6ff"/>
+      <circle cx="-2" cy="-2" r="2" fill="#ffffff" opacity="0.4"/>
+    </g>
+    <text x="210" y="185" text-anchor="middle" fill="#58a6ff" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="600">Camera</text>
+  </g>
+  
+  <!-- Arrow 1 — card1 right=330 → card2 left=377 -->
+  <g>
+    <line x1="335" y1="150" x2="365" y2="150" stroke="url(#arrowGradient)" stroke-width="3" stroke-linecap="round"/>
+    <polygon points="365,150 357,145 357,155" fill="#58a6ff"/>
+  </g>
+  
+  <!-- Stage 2: YOLO26 — left=377, center=497 -->
+  <g>
+    <rect x="377" y="100" width="240" height="100" rx="12" fill="#161b22" stroke="#f78166" stroke-width="2"/>
+    <!-- AI Chip Icon -->
+    <g transform="translate(497, 138)">
+      <rect x="-18" y="-18" width="36" height="36" rx="6" fill="url(#yoloGradient)"/>
+      <rect x="-10" y="-10" width="20" height="20" rx="3" fill="#0d1117"/>
+      <line x1="-10" y1="-4" x2="-4" y2="-4" stroke="#f78166" stroke-width="2"/>
+      <line x1="4" y1="-4" x2="10" y2="-4" stroke="#f78166" stroke-width="2"/>
+      <line x1="-10" y1="0" x2="-4" y2="0" stroke="#f78166" stroke-width="2"/>
+      <line x1="4" y1="0" x2="10" y2="0" stroke="#f78166" stroke-width="2"/>
+      <line x1="-10" y1="4" x2="-4" y2="4" stroke="#f78166" stroke-width="2"/>
+      <line x1="4" y1="4" x2="10" y2="4" stroke="#f78166" stroke-width="2"/>
+      <circle cx="0" cy="0" r="3" fill="#f78166"/>
+    </g>
+    <text x="497" y="185" text-anchor="middle" fill="#f78166" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="600">YOLO26</text>
+  </g>
+  
+  <!-- Arrow 2 -->
+  <g>
+    <line x1="620" y1="150" x2="650" y2="150" stroke="url(#arrowGradient)" stroke-width="3" stroke-linecap="round"/>
+    <polygon points="650,150 642,145 642,155" fill="#58a6ff"/>
+  </g>
+  
+  <!-- Stage 3: Spatial Feedback — left=663, center=783 -->
+  <g>
+    <rect x="663" y="100" width="240" height="100" rx="12" fill="#161b22" stroke="#d2a8ff" stroke-width="2"/>
+    <!-- Signal/Compass Icon -->
+    <g transform="translate(783, 138)">
+      <circle cx="0" cy="0" r="18" fill="none" stroke="url(#feedbackGradient)" stroke-width="2.5"/>
+      <path d="M -12 0 Q -6 -8 0 0 Q 6 -8 12 0" fill="none" stroke="#d2a8ff" stroke-width="2" stroke-linecap="round"/>
+      <path d="M -8 0 Q -4 -5 0 0 Q 4 -5 8 0" fill="none" stroke="#d2a8ff" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="0" cy="0" r="3" fill="#d2a8ff"/>
+      <line x1="0" y1="-18" x2="0" y2="-12" stroke="#d2a8ff" stroke-width="2" stroke-linecap="round"/>
+      <line x1="0" y1="12" x2="0" y2="18" stroke="#d2a8ff" stroke-width="2" stroke-linecap="round"/>
+      <line x1="-18" y1="0" x2="-12" y2="0" stroke="#d2a8ff" stroke-width="2" stroke-linecap="round"/>
+      <line x1="12" y1="0" x2="18" y2="0" stroke="#d2a8ff" stroke-width="2" stroke-linecap="round"/>
+    </g>
+    <text x="783" y="185" text-anchor="middle" fill="#d2a8ff" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="600">Spatial Feedback</text>
+  </g>
+  
+  <!-- Arrow 3 -->
+  <g>
+    <line x1="906" y1="150" x2="936" y2="150" stroke="url(#arrowGradient)" stroke-width="3" stroke-linecap="round"/>
+    <polygon points="936,150 928,145 928,155" fill="#58a6ff"/>
+  </g>
+  
+  <!-- Stage 4: Audio Output — left=950, center=1070 -->
+  <g>
+    <rect x="950" y="100" width="240" height="100" rx="12" fill="#161b22" stroke="#3fb950" stroke-width="2"/>
+    <!-- Speaker Icon -->
+    <g transform="translate(1070, 138)">
+      <path d="M -15 -12 L -5 -12 L -5 -18 L 8 -10 L 8 10 L -5 18 L -5 12 L -15 12 Z" fill="url(#audioGradient)"/>
+      <path d="M 12 -8 Q 18 0 12 8" fill="none" stroke="#3fb950" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M 16 -12 Q 24 0 16 12" fill="none" stroke="#3fb950" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="-10" cy="0" r="3" fill="#0d1117"/>
+    </g>
+    <text x="1070" y="185" text-anchor="middle" fill="#3fb950" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="600">Audio Output</text>
+  </g>
+  
+  <!-- ============ PROXIMITY BAR (same x-span as pipeline) ============ -->
+  
+  <g>
+    <!-- Bar background — x=90, width=1100 (exact pipeline span) -->
+    <rect x="90" y="240" width="1100" height="24" rx="12" fill="#161b22" stroke="#30363d" stroke-width="2"/>
+    <!-- Gradient fill -->
+    <rect x="92" y="242" width="1096" height="20" rx="10" fill="url(#proximityGradient)"/>
+    
+    <!-- Vertical tick marks aligned to card centers -->
+    <line x1="210" y1="240" x2="210" y2="264" stroke="#30363d" stroke-width="1"/>
+    <line x1="497" y1="240" x2="497" y2="264" stroke="#30363d" stroke-width="1"/>
+    <line x1="783" y1="240" x2="783" y2="264" stroke="#30363d" stroke-width="1"/>
+    <line x1="1070" y1="240" x2="1070" y2="264" stroke="#30363d" stroke-width="1"/>
+    
+    <!-- Marker labels — positioned at card centers -->
+    <circle cx="210" cy="280" r="4" fill="#58a6ff"/>
+    <text x="210" y="298" text-anchor="middle" fill="#8b949e" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="500">SCANNING</text>
+    
+    <circle cx="497" cy="280" r="4" fill="#f78166"/>
+    <text x="497" y="298" text-anchor="middle" fill="#8b949e" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="500">TRACKING</text>
+    
+    <circle cx="783" cy="280" r="4" fill="#d2a8ff"/>
+    <text x="783" y="298" text-anchor="middle" fill="#8b949e" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="500">LOCKED</text>
+    
+    <!-- Target icon at card4 center -->
+    <g transform="translate(1070, 274)">
+      <circle cx="0" cy="0" r="8" fill="none" stroke="#3fb950" stroke-width="2"/>
+      <circle cx="0" cy="0" r="5" fill="none" stroke="#3fb950" stroke-width="2"/>
+      <circle cx="0" cy="0" r="2" fill="#3fb950"/>
+    </g>
+    <text x="1070" y="298" text-anchor="middle" fill="#8b949e" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="500">TARGET</text>
+  </g>
+</svg>

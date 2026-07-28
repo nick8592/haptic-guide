@@ -1,4 +1,20 @@
-# HapticGuide
+<p align="center">
+  <img src="docs/banner.svg" alt="HapticGuide — Real-Time Spatial Finder for the Visually Impaired" width="100%">
+</p>
+
+<div align="center">
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Python 3.12](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)](Dockerfile)
+[![CUDA 12.8](https://img.shields.io/badge/CUDA-12.8-76B900?logo=nvidia&logoColor=white)](https://developer.nvidia.com/cuda-toolkit)
+[![YOLO26](https://img.shields.io/badge/YOLO26-NMS--free-f78166?logo=ultralytics&logoColor=white)](src/detector.py)
+[![GPU Required](https://img.shields.io/badge/GPU-Required-BC8CFF?logo=nvidia&logoColor=white)](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
+[![Tests](https://img.shields.io/badge/Tests-12%20pass-3fb950?logo=pytest&logoColor=white)](tests/test_core.py)
+
+</div>
+
+---
 
 Real-Time Spatial Finder for the Visually Impaired — Linux Edition
 
@@ -70,6 +86,10 @@ docker compose run --rm -e GRADIO_PORT=8080 -p 8080:8080 gradio
 
 Open **http://localhost:7860** in your browser.
 
+<p align="center">
+  <img src="docs/screenshots/gradio_ui.png" alt="Gradio Web UI — Image Detection tab" width="800">
+</p>
+
 | Tab | Description |
 |-----|-------------|
 | **Image Detection** | Upload an image, select target & model, run detection with overlay |
@@ -103,6 +123,12 @@ When `--display` is active, the window shows:
 - **Mode indicator** (top-right) — SCANNING / TRACKING / LOCKED
 - **Crosshair** at frame center
 - **FPS counter** (bottom-left)
+
+<p align="center">
+  <img src="docs/screenshots/gradio_scanning.png" alt="SCANNING mode — target far from center" width="280">
+  <img src="docs/screenshots/gradio_tracking.png" alt="TRACKING mode — target approaching center" width="280">
+  <img src="docs/screenshots/gradio_locked.png" alt="LOCKED mode — target centered" width="280">
+</p>
 
 Press **q** or **ESC** in the window to quit.
 
@@ -188,19 +214,21 @@ With `--display` window active (YOLO26n): **55–60 FPS** (display rendering add
 
 ## Architecture
 
-```
-┌─────────────┐     ┌──────────────┐     ┌────────────────┐     ┌──────────────┐
-│   Camera     │────→│  YOLO26      │────→│  Spatial       │────→│   Audio      │
-│   (V4L2)     │     │  Detector    │     │  Feedback      │     │   Engine     │
-│              │     │  (ONNX/TRT)  │     │  Engine        │     │   (PipeWire) │
-│  ~27ms MJPG  │     │  4-29ms inf  │     │  1ms compute   │     │  3ms output │
-└─────────────┘     └──────────────┘     └────────────────┘     └──────────────┘
-                           │                     │
-                     ┌─────┴─────┐         ┌─────┴──────┐
-                     │  Tracker  │         │  Visualizer │
-                     │  (IoU)    │         │  (OpenCV)   │
-                     │  <1ms     │         │  --display  │
-                     └───────────┘         └────────────┘
+```mermaid
+flowchart LR
+    A["🎥 Camera<br/><small>V4L2 ~27ms</small>"] -->|MJPG frame| B["🧠 YOLO26 Detector<br/><small>ONNX / TRT<br/>4–29ms inf</small>"]
+    B -->|detections| C["📡 Spatial Feedback Engine<br/><small>~1ms compute</small>"]
+    C -->|signal| D["🔊 Audio Engine<br/><small>PipeWire ~3ms</small>"]
+
+    B -->|"object IDs"| E["🔁 Tracker<br/><small>IoU &lt;1ms</small>"]
+    C -->|"overlay"| F["🖥️ Visualizer<br/><small>OpenCV --display</small>"]
+
+    style A fill:#161b22,stroke:#58a6ff,stroke-width:2px,color:#58a6ff
+    style B fill:#161b22,stroke:#f78166,stroke-width:2px,color:#f78166
+    style C fill:#161b22,stroke:#d2a8ff,stroke-width:2px,color:#d2a8ff
+    style D fill:#161b22,stroke:#3fb950,stroke-width:2px,color:#3fb950
+    style E fill:#161b22,stroke:#8b949e,stroke-width:1px,color:#8b949e
+    style F fill:#161b22,stroke:#8b949e,stroke-width:1px,color:#8b949e
 ```
 
 ## YOLO26 Model Variants
@@ -299,11 +327,14 @@ haptic-guide/
 ├── requirements.txt        # Python dependencies
 ├── configs/
 │   └── default.yaml        # Runtime configuration
+├── docs/
+│   └── screenshots/        # README UI screenshots (real YOLO detection via Gradio)
 ├── models/                 # Downloaded/exported models (persisted via volume)
 ├── scripts/
 │   ├── entrypoint.sh       # Container entrypoint (auto-installs X11 deps, routes CLI/Gradio)
 │   ├── haptic-guide.sh     # Build, run, gradio, shell, benchmark CLI
-│   └── dev_tools.py        # Download, export, benchmark tools
+│   ├── dev_tools.py        # Download, export, benchmark tools
+│   └── capture_gradio_screenshots.py  # Capture real detection screenshots via Playwright
 ├── src/
 │   ├── __init__.py
 │   ├── main.py             # App entry point + CLI (--display, --no-audio)
