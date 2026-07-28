@@ -52,6 +52,9 @@ class FeedbackSignal:
     mode: FeedbackMode = FeedbackMode.IDLE
 
     # Vibration (GPIO haptic motor)
+    # NOTE: These fields are computed but not yet output to hardware.
+    # A haptic_engine.py (GPIO/PWM driver) is needed to drive a real motor,
+    # but we currently lack physical hardware to test against.
     vibration_freq_hz: float = 0.0    # 0 = silent, 10-80 Hz
     vibration_intensity: float = 0.0  # 0.0-1.0
 

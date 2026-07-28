@@ -116,6 +116,9 @@ class HapticGuideApp:
         logger.info("[3/5] Initializing feedback engine...")
         self.feedback_engine = SpatialFeedbackEngine(self.feedback_config)
 
+        # TODO: Add haptic_engine (GPIO/PWM) init here when physical motor is available.
+        # FeedbackSignal.vibration_freq_hz and .vibration_intensity are computed
+        # but currently have no hardware output path.
         logger.info("[4/5] Starting audio engine...")
         if self.no_audio:
             logger.info("Audio: DISABLED (--no-audio flag)")
