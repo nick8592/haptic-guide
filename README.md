@@ -115,6 +115,8 @@ Open **http://localhost:7860** in your browser.
 | **Benchmark** | Run inference benchmarks (variant, backend, iterations) |
 | **Configuration** | View current `default.yaml` settings |
 
+> Additional detection parameters — confidence threshold (0.1–0.99), IoU threshold (0.1–0.9), and max detections (1–50) — are configurable via sliders in the Gradio UI.
+
 ### 4. Docker Compose
 
 ```bash
@@ -158,9 +160,7 @@ HapticGuide runs a continuous **sense → infer → feedback** loop:
 3. **Locate** — The spatial engine computes distance and direction from the target to frame center (~1ms)
 4. **Feedback** — Audio pitch, beat rate, stereo pan, and vibration intensity all increase as you approach the target
 
-The result: **pan your camera like a metal detector** — the feedback intensifies as you get closer, and a distinctive earcon sounds when the target is locked at center.
-
-**Zero cloud dependency.** All inference runs locally on GPU (or CPU with reduced FPS).
+The result: **pan your camera like a metal detector** — the feedback intensifies as you get closer, and a distinctive earcon sounds when the target is locked at center. All inference runs locally on GPU (or CPU with reduced FPS).
 
 ## Architecture
 
@@ -193,16 +193,16 @@ flowchart LR
 
 ## Model Variants & Benchmarks
 
-**Inference-only:** 100 iterations, synthetic 640×640 frames, ONNX FP32 CUDA.
+**Inference-only:** 100 iterations, synthetic 640×640 frames, ONNX FP32 CUDA (RTX 4060 Laptop 8GB).
 **E2E:** 200 iterations, MJPG 640×480 real camera, full pipeline (camera → inference → feedback).
 
-| Variant | Params | GFLOPs | Infer (ms) | FPS | E2E FPS | Use Case |
-|---------|--------|--------|------------|-----|----------|----------|
-| **yolo26n** | 2.6M | 5.4 | **4.68** | **213** | ~30 | Real-time (default, recommended) |
-| **yolo26s** | 9.5M | 20.7 | **6.13** | **163** | ~30 | Better accuracy, real-time GPU |
-| **yolo26m** | 20.4M | 68.2 | **12.00** | **83** | ~30 | GPU-only real-time |
-| yolo26l | 24.8M | 86.4 | 15.09 | 66 | — | High accuracy (GPU) |
-| yolo26x | 55.7M | 193.9 | 29.14 | 34 | — | Research / offline |
+| Variant | Params | GFLOPs | Infer (ms) | P95 (ms) | FPS | E2E (ms) | E2E FPS | Use Case |
+|---------|--------|--------|------------|----------|-----|----------|---------|----------|
+| **yolo26n** | 2.6M | 5.4 | **4.68** | 5.24 | **213** | 32.99 | ~30 | Real-time (default, recommended) |
+| **yolo26s** | 9.5M | 20.7 | **6.13** | 6.61 | **163** | 32.95 | ~30 | Better accuracy, real-time GPU |
+| **yolo26m** | 20.4M | 68.2 | **12.00** | 13.04 | **83** | 32.97 | ~30 | GPU-only real-time |
+| yolo26l | 24.8M | 86.4 | 15.09 | 16.40 | 66 | — | — | High accuracy (GPU) |
+| yolo26x | 55.7M | 193.9 | 29.14 | 29.46 | 34 | — | — | Research / offline |
 
 > **Camera bottleneck:** All variants saturate at the same E2E FPS (~30) because MJPG decode/capture dominates (~27ms). Switching to a faster capture path (V4L2 DmaBuf or lower resolution) would reveal per-model E2E differences. Inference-only is the true GPU throughput metric.
 
